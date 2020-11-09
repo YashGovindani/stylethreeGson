@@ -177,16 +177,12 @@ if(this.readyState==4)
 {
 if(this.status==200)
 {
-var responseData=this.responseText.split(',');
-if(responseData[0].localeCompare('error')==0)
+var responseData=JSON.parse(this.responseText);
+if(responseData.result.localeCompare('error')==0)
 {
-for(var i=1;i<responseData.length;i+=2)
-{
-var errorType=responseData[i];
-var errorMessage=responseData[i+1];
-document.getElementById(errorType+'ErrorSection').innerHTML=errorMessage;
-if(i==1) document.getElementById(errorType).focus();
-}
+if(responseData.designation!=null) document.getElementById('designationErrorSection').innerHTML=responseData.designation;
+if(responseData.panNumber!=null) document.getElementById('panNumberErrorSection').innerHTML=responseData.panNumber;
+if(responseData.aadharCardNumber!=null) document.getElementById('aadharCardNumberErrorSection').innerHTML=responseData.aadharCardNumber;
 return;
 }
 else
@@ -218,22 +214,21 @@ alert('some problem');
 }
 };
 xmlHttpRequest.open('POST','updateEmployee',true);
-xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-var dataToSend="";
-dataToSend+="employeeId="+encodeURI(document.getElementById('boldEmployeeId').innerHTML);
-dataToSend+="&name="+encodeURI(document.getElementById('name').value.trim());
-dataToSend+="&designation="+encodeURI(document.getElementById('designation').value);
-dataToSend+="&dateOfBirth="+encodeURI(document.getElementById('dateOfBirth').value);
-dataToSend+="&gender=";
-if(document.getElementById('male').checked) dataToSend+=encodeURI('Male');
-else dataToSend+=encodeURI('Female');
-dataToSend+="&isIndian=";
-if(document.getElementById('isIndian').checked) dataToSend+=encodeURI('True');
-else dataToSend+=encodeURI('False');
-dataToSend+="&basicSalary="+encodeURI(document.getElementById('basicSalary').value);
-dataToSend+="&panNumber="+encodeURI(document.getElementById('panNumber').value);
-dataToSend+="&aadharCardNumber="+encodeURI(document.getElementById('aadharCardNumber').value);
-xmlHttpRequest.send(dataToSend);
+xmlHttpRequest.setRequestHeader("Content-Type","application/json");
+var dataToSend={
+"employeeId":document.getElementById('boldEmployeeId').innerHTML,
+"name":document.getElementById('name').value.trim(),
+"designationCode":document.getElementById('designation').value,
+"designation":"",
+"dateOfBirth":document.getElementById('dateOfBirth').value,
+"isIndian":document.getElementById('isIndian').checked,
+"basicSalary":document.getElementById('basicSalary').value,
+"panNumber":document.getElementById('panNumber').value,
+"aadharCardNumber":document.getElementById('aadharCardNumber').value
+};
+if(document.getElementById('male').checked) dataToSend['gender']='Male';
+else dataToSend['gender']='Female';
+xmlHttpRequest.send(JSON.stringify(dataToSend));
 }
 function primaryButtonSecondaryAction()
 {

@@ -10,19 +10,17 @@ if(this.readyState==4)
 {
 if(this.status==200)
 {
-var responseData=this.responseText;
-var employeeDetails=responseData.split(",");
-if(employeeDetails[0].localeCompare('invalid')==0) secondaryButtonAction();
-document.getElementById('boldName').innerHTML=employeeDetails[1];
-document.getElementById('boldDesignation').innerHTML=employeeDetails[9];
-document.getElementById('boldDateOfBirth').innerHTML=employeeDetails[3];
-document.getElementById('boldGender').innerHTML=employeeDetails[4];
-if(employeeDetails[5].localeCompare('true')==0) document.getElementById('boldIsIndian').innerHTML='Yes';
-else document.getElementById('boldIsIndian').innerHTML='No';
-document.getElementById('boldBasicSalary').innerHTML=employeeDetails[6];
-document.getElementById('boldPANNumber').innerHTML=employeeDetails[7];
-document.getElementById('boldAadharCardNumber').innerHTML=employeeDetails[8];
-document.getElementById('boldEmployeeId').innerHTML=employeeDetails[0];
+var employeeDetails=JSON.parse(this.responseText);
+if(employeeDetails.result.localeCompare('error')==0) secondaryButtonAction();
+document.getElementById('boldName').innerHTML=employeeDetails.name;
+document.getElementById('boldDesignation').innerHTML=employeeDetails.designation;
+document.getElementById('boldDateOfBirth').innerHTML=employeeDetails.dateOfBirth;
+document.getElementById('boldGender').innerHTML=employeeDetails.gender;
+document.getElementById('boldIsIndian').innerHTML="Yes";
+document.getElementById('boldBasicSalary').innerHTML=employeeDetails.basicSalary;
+document.getElementById('boldPANNumber').innerHTML=employeeDetails.panNumber;
+document.getElementById('boldAadharCardNumber').innerHTML=employeeDetails.aadharCardNumber;
+document.getElementById('boldEmployeeId').innerHTML=employeeDetails.employeeId;
 }
 else
 {
@@ -32,9 +30,11 @@ alert('some problem in details');
 };
 xmlHttpRequest.open('POST','employeeDetails',true);
 var id=new URLSearchParams(window.location.search).get('id');
-var dataToSend='employeeId='+encodeURI(id);
-xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-xmlHttpRequest.send(dataToSend);
+var dataToSend={
+"employeeId":new URLSearchParams(window.location.search).get('id')
+};
+xmlHttpRequest.setRequestHeader("Content-Type","application/json");
+xmlHttpRequest.send(JSON.stringify(dataToSend));
 }
 function primaryButtonAction()
 {
@@ -44,16 +44,10 @@ if(this.readyState==4)
 {
 if(this.status==200)
 {
-var responseData=this.responseText.split(',');
-if(responseData[0].localeCompare('error')==0)
+var responseData=JSON.parse(this.responseText);
+if(responseData.result.localeCompare('error')==0)
 {
-for(var i=1;i<responseData.length;i+=2)
-{
-var errorType=responseData[i];
-var errorMessage=responseData[i+1];
-document.getElementById(errorType+'ErrorSection').innerHTML=errorMessage;
-if(i==1) document.getElementById(errorType).focus();
-}
+document.getElementById('secondaryButton').submit();
 return;
 }
 else
@@ -81,10 +75,12 @@ alert('some problem');
 }
 };
 xmlHttpRequest.open('POST','deleteEmployee',true);
-xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-var dataToSend="";
-dataToSend+="employeeId="+encodeURI(document.getElementById('boldEmployeeId').innerHTML);
-xmlHttpRequest.send(dataToSend);
+var id=new URLSearchParams(window.location.search).get('id');
+var dataToSend={
+"employeeId":document.getElementById('boldEmployeeId').innerHTML
+};
+xmlHttpRequest.setRequestHeader("Content-Type","application/json");
+xmlHttpRequest.send(JSON.stringify(dataToSend));
 }
 function primaryButtonSecondaryAction()
 {
